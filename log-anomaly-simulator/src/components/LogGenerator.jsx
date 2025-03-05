@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios"; // Axios for HTTP requests
 
 const getRandomIp = () => {
   return `${Math.floor(Math.random() * 255)}.${Math.floor(
@@ -113,9 +114,16 @@ export default function LogGenerator() {
     return () => clearInterval(interval);
   }, []);
 
-  const generateLog = (anomaly = null) => {
+  const generateLog = async (anomaly = null) => {
     const log = anomaly ? anomaly() : logTypes.normal();
     setLogs((prevLogs) => [log, ...prevLogs.slice(0, 19)]);
+
+    try {
+      // Send log to the backend via POST request
+      await axios.post("http://localhost:5000/send-log", { log });
+    } catch (error) {
+      console.error("Error sending log to backend:", error);
+    }
   };
 
   return (
