@@ -106,40 +106,81 @@ const anomalyLogTypes = {
 
 export default function LogGenerator() {
   const [logs, setLogs] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      generateLog();
-    }, 2000);
+    let interval;
+    if (isGenerating) {
+      interval = setInterval(() => {
+        generateLog();
+      }, 2000);
+    }
     return () => clearInterval(interval);
-  }, []);
+  }, [isGenerating]);
 
   const generateLog = async (anomaly = null) => {
     const log = anomaly ? anomaly() : logTypes.normal();
-    setLogs((prevLogs) => [log, ...prevLogs.slice(0, 19)]);
+    const logType = anomaly ? Object.keys(anomalyLogTypes).find(key => anomalyLogTypes[key] === anomaly) : 'normal';
+    
+    setLogs((prevLogs) => [{
+      text: log,
+      type: logType
+    }, ...prevLogs.slice(0, 19)]);
 
     try {
-      // Send log to the backend via POST request
       await axios.post("http://localhost:5000/send-log", { log });
     } catch (error) {
       console.error("Error sending log to backend:", error);
     }
   };
 
+  const getLogColor = (type) => {
+    switch(type) {
+      case 'sql_injection': return '#ff4d4d';
+      case 'xss': return '#ff944d';
+      case 'csrf': return '#ffdb4d';
+      case 'ddos': return '#4dff4d';
+      case 'command_injection': return '#4d4dff';
+      default: return '#ffffff';
+    }
+  };
+
   return (
     <div className="log-container">
       <h1>Log Anomaly Simulator</h1>
-      <div className="button-container">
-        {Object.keys(anomalyLogTypes).map((type) => (
-          <button key={type} onClick={() => generateLog(anomalyLogTypes[type])}>
-            Trigger {type.replace("_", " ")} anomaly
-          </button>
-        ))}
+      <div className="control-panel">
+        <button 
+          onClick={() => setIsGenerating(!isGenerating)}
+          className={`control-button ${isGenerating ? 'active' : ''}`}
+        >
+          {isGenerating ? 'Pause Generation' : 'Start Generation'}
+        </button>
+        <div className="button-container">
+          {Object.keys(anomalyLogTypes).map((type) => (
+            <button 
+              key={type} 
+              onClick={() => generateLog(anomalyLogTypes[type])}
+              style={{ backgroundColor: getLogColor(type) }}
+            >
+              Trigger {type.replace("_", " ")} anomaly
+            </button>
+          ))}
+        </div>
       </div>
       <div className="log-box">
         {logs.map((log, index) => (
-          <p key={index} className="log-entry">
-            {log}
+          <p 
+            key={index} 
+            className="log-entry"
+            style={{ 
+              backgroundColor: getLogColor(log.type),
+              padding: '8px',
+              margin: '4px 0',
+              borderRadius: '4px',
+              transition: 'background-color 0.3s ease'
+            }}
+          >
+            {log.text}
           </p>
         ))}
       </div>
