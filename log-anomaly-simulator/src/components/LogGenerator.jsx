@@ -94,11 +94,11 @@ const anomalyLogTypes = {
     } HTTP/1.1" 403 ${getRandomResponseSize()} "-" "${getRandomUserAgent()}" Cross-Site Scripting (XSS) Attack Detected`;
   },
 
-  csrf: () =>
-    `${getRandomIp()} - - [${getFormattedDate()}] "POST /transfer HTTP/1.1" 401 ${getRandomResponseSize()} "-" "${getRandomUserAgent()}" Cross-Site Request Forgery (CSRF) Attempt Detected`,
+  // csrf: () =>
+  //   `${getRandomIp()} - - [${getFormattedDate()}] "POST /transfer HTTP/1.1" 401 ${getRandomResponseSize()} "-" "${getRandomUserAgent()}" Cross-Site Request Forgery (CSRF) Attempt Detected`,
 
-  ddos: () =>
-    `${getRandomIp()} - - [${getFormattedDate()}] "GET ${getRandomPath()} HTTP/1.1" 429 ${getRandomResponseSize()} "-" "${getRandomUserAgent()}" DDoS Attack Detected: Excessive requests`,
+  // ddos: () =>
+  //   `${getRandomIp()} - - [${getFormattedDate()}] "GET ${getRandomPath()} HTTP/1.1" 429 ${getRandomResponseSize()} "-" "${getRandomUserAgent()}" DDoS Attack Detected: Excessive requests`,
 
   command_injection: () =>
     `${getRandomIp()} - - [${getFormattedDate()}] "GET /ping?ip=;rm -rf / HTTP/1.1" 500 ${getRandomResponseSize()} "-" "${getRandomUserAgent()}" Command Injection Attempt Detected`,
@@ -138,8 +138,8 @@ export default function LogGenerator() {
     switch(type) {
       case 'sql_injection': return '#ff4d4d';
       case 'xss': return '#ff944d';
-      case 'csrf': return '#ffdb4d';
-      case 'ddos': return '#4dff4d';
+      // case 'csrf': return '#ffdb4d';
+      // case 'ddos': return '#4dff4d';
       case 'command_injection': return '#4d4dff';
       default: return '#ffffff';
     }
